@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class CardManager : MonoBehaviour {
+public class CardManager : Singleton<CardManager> {
     public static readonly int DeckSize = 54;
 
     [SerializeField] Card cardPrefab;
@@ -8,20 +8,18 @@ public class CardManager : MonoBehaviour {
     public CardData[] MiddleCards {  get; private set; }
 
     void Start() {
-        InitiateeGame();
+        InitiateGame();
     }
 
-    public void InitiateeGame() {
+    public void InitiateGame() {
         MiddleCards = new CardData[2] { GenerateCard(), GenerateCard() };
     }
 
-    public Transform GenerateCardObject(CardData card) {
-        
-
+    public Card GenerateCardObject(CardData card) {
         Card obj = Instantiate(cardPrefab);
-        obj.SetData(card, sprite);
+        obj.SetData(card);
 
-        return obj.transform;
+        return obj;
     }
 
     public CardData GenerateCard() {

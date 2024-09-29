@@ -9,13 +9,9 @@ public class Card : MonoBehaviour {
         _spriteRenderer = GetComponent<SpriteRenderer>();
     }
 
-    void Update() {
-        
-    }
-
-    public void SetData(CardData card) {
+    public void SetData(CardData card, bool isFlipped = false) {
         _data = card;
 
-        _spriteRenderer.sprite = CardViewManager.instance.GetSpriteFor(_data);
+        _spriteRenderer.sprite = isFlipped ? CardViewManager.instance.GetBackSprite() : CardViewManager.instance.GetSpriteFor(_data);
     }
 }

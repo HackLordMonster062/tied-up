@@ -3,14 +3,6 @@ using UnityEngine;
 public class CardViewManager : Singleton<CardViewManager> {
 	[SerializeField] SO_CardSprites cardSprites;
 
-	void Start() {
-        
-    }
-
-    void Update() {
-        
-    }
-
     public Sprite GetSpriteFor(CardData card) {
 		switch (card.Suit) {
 			case Suit.Spades:
@@ -26,5 +18,9 @@ public class CardViewManager : Singleton<CardViewManager> {
 		}
 
 		return null;
+	}
+
+	public Sprite GetBackSprite() {
+		return cardSprites.back;
 	}
 }
