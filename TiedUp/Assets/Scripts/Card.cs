@@ -2,6 +2,7 @@ using UnityEngine;
 
 public class Card : MonoBehaviour {
     CardData _data;
+    public CardData Data { get { return _data; } }
 
     SpriteRenderer _spriteRenderer;
 

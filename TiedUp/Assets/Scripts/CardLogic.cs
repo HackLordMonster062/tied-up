@@ -1,6 +1,8 @@
 using System.Linq;
 
 public static class CardLogic {
+    public static readonly int SameNumberMinSize = 2;
+    public static readonly int OrderedMinSize = 3;
     public static readonly int SameSuitMinSize = 4;
 
     public static bool IsLegal(CardData[] cardsPlaced, CardData[] middleCards) {
@@ -8,68 +10,81 @@ public static class CardLogic {
                        || IsSameSuit(cardsPlaced, middleCards)
                        || IsOrdered(cardsPlaced, middleCards);
 
-        bool isValidTop = cardsPlaced[cardsPlaced.Length - 1].Suit == Suit.Joker;
+        bool isValidTop = cardsPlaced[cardsPlaced.Length - 1].Suit != Suit.Joker;
 
-        return isValidSet && isValidTop;
+        return cardsPlaced.Length > 0 && isValidSet && isValidTop;
     }
 
     static bool IsSameNumber(CardData[] cards, CardData[] middle) {
         int? value = null;
 
-        for (int i = 0; i < middle.Length; i++) {
-            if (middle[i].Value == cards[0].Value) {
-                value = middle[i].Value;
-                break;
-            }
-        }
-
-        if (value == null)
-            return false;
-
         foreach (CardData card in cards) {
-            if (card.Value != value) {
-                return false;
+            if (card.Suit != Suit.Joker) {
+                if (value == null) {
+                    value = card.Value;
+                } else if (card.Value != value) {
+                    return false;
+                }
             }
         }
 
-        return true;
+        if (value == null) {
+            return true;
+        }
+
+        int middleCount = 0;
+
+        for (int i = 0; i < middle.Length; i++) {
+            if (middle[i].Value == value) {
+				middleCount++;
+            }
+        }
+
+        return middleCount > 0 && middleCount + cards.Length >= SameNumberMinSize;
     }
 
     static bool IsSameSuit(CardData[] cards, CardData[] middle) {
 		Suit? suit = null;
-        int count = 0;
-
-		for (int i = 0; i < middle.Length; i++) {
-			if (middle[i].Suit == cards[0].Suit) {
-				suit = middle[i].Suit;
-                count++;
-			}
-		}
-
-		if (suit == null || count + cards.Length < SameSuitMinSize)
-			return false;
 
 		foreach (CardData card in cards) {
-			if (card.Suit != suit) {
-				return false;
+			if (card.Suit != Suit.Joker) {
+				if (suit == null) {
+					suit = card.Suit;
+				} else if (card.Suit != suit) {
+					return false;
+				}
 			}
 		}
 
-		return true;
+		if (suit == null) {
+			return true;
+		}
+
+		int middleCount = 0;
+
+		for (int i = 0; i < middle.Length; i++) {
+			if (middle[i].Suit == suit) {
+				middleCount++;
+			}
+		}
+
+		return middleCount > 0 && middleCount + cards.Length >= SameSuitMinSize;
 	}
 
     static bool IsOrdered(CardData[] cards, CardData[] middle) {
-        var ordered = cards.OrderBy(card => card.Value).ToArray();
+        var ordered = cards
+            .Where(card => card.Suit != Suit.Joker)
+            .OrderBy(card => card.Value).ToArray();
 
-        int currValue = ordered[0].Value - 1;
+        int jokers = cards.Count(card => card.Suit == Suit.Joker);
+
+        int currValue = (ordered[0].Value + 11) % 13 + 1;  // One number down and around
 
         int middleCount = 0;
 
-        int i = 1;
+        int i = 0;
 
         while (i < cards.Length) {
-            currValue = (currValue - 1) % 13 + 1;
-
             if (currValue == cards[i].Value) {
                 i++;
             } else {
@@ -81,14 +96,16 @@ public static class CardLogic {
                     }
                 }
 
-                if (!found) {
+                middleCount++;
+
+                if (!found && jokers-- <= 0) {
                     return false;
                 }
-
-                middleCount++;
             }
+
+            currValue = currValue % 13 + 1;
         }
 
-        return true;
+        return middleCount >= OrderedMinSize;
     }
 }

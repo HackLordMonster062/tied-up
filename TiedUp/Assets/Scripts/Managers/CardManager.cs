@@ -1,13 +1,16 @@
+using System;
 using UnityEngine;
 
 public class CardManager : Singleton<CardManager> {
     public static readonly int DeckSize = 54;
 
-    [SerializeField] Card cardPrefab;
+    public event Action OnSuccessfulMove;
 
-    public CardData[] MiddleCards {  get; private set; }
+    public CardData[] MiddleCards { get; private set; }
 
-    void Start() {
+    protected override void Awake() {
+        base.Awake();
+
         InitiateGame();
     }
 
@@ -15,20 +18,23 @@ public class CardManager : Singleton<CardManager> {
         MiddleCards = new CardData[2] { GenerateCard(), GenerateCard() };
     }
 
-    public Card GenerateCardObject(CardData card) {
-        Card obj = Instantiate(cardPrefab);
-        obj.SetData(card);
+    public void MakeMove(CardData[] cards, int middleCardIndex) {
+        bool isLegal = CardLogic.IsLegal(cards, MiddleCards);
 
-        return obj;
+        if (isLegal) {
+            MiddleCards[middleCardIndex] = cards[cards.Length - 1];
+
+            OnSuccessfulMove?.Invoke();
+        }
     }
 
     public CardData GenerateCard() {
-        if (Random.value < (2 / DeckSize)) {
+        if (UnityEngine.Random.value < (2 / DeckSize)) {
             return new CardData(0, Suit.Joker);
         }
 
-        Suit suit = (Suit)(Random.Range(1, 5));
-        int value = Random.Range(1, 14);
+        Suit suit = (Suit)(UnityEngine.Random.Range(1, 5));
+        int value = UnityEngine.Random.Range(1, 14);
 
         return new CardData(value, suit);
     }
