@@ -3,32 +3,35 @@ using UnityEngine;
 public class CardManager : MonoBehaviour {
     public static readonly int DeckSize = 54;
 
-    [SerializeField] SO_CardSprites cardSprites;
+    [SerializeField] Card cardPrefab;
+
+    public CardData[] MiddleCards {  get; private set; }
 
     void Start() {
-        
+        InitiateeGame();
     }
 
-    public Sprite GetCardSprite(CardData card) {
-        switch (card.Suit) {
-            case Suit.Spades:
-                return cardSprites.spades[card.Value - 1];
-            case Suit.Diamonds:
-                return cardSprites.diamonds[card.Value - 1];
-            case Suit.Hearts:
-                return cardSprites.hearts[card.Value - 1];
-            case Suit.Clubs:
-                return cardSprites.clubs[card.Value - 1];
-            case Suit.Joker:
-                return cardSprites.joker;
-        }
+    public void InitiateeGame() {
+        MiddleCards = new CardData[2] { GenerateCard(), GenerateCard() };
+    }
 
-        return null;
+    public Transform GenerateCardObject(CardData card) {
+        
+
+        Card obj = Instantiate(cardPrefab);
+        obj.SetData(card, sprite);
+
+        return obj.transform;
     }
 
     public CardData GenerateCard() {
         if (Random.value < (2 / DeckSize)) {
-            return new CardData()
+            return new CardData(0, Suit.Joker);
         }
+
+        Suit suit = (Suit)(Random.Range(1, 5));
+        int value = Random.Range(1, 14);
+
+        return new CardData(value, suit);
     }
 }
