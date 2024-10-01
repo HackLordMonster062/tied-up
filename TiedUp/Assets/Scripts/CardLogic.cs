@@ -1,4 +1,5 @@
 using System.Linq;
+using UnityEngine;
 
 public static class CardLogic {
     public static readonly int SameNumberMinSize = 2;
@@ -82,10 +83,19 @@ public static class CardLogic {
 
         int middleCount = 0;
 
-        int i = 0;
+		foreach (CardData card in middle) {
+			if (card.Value == currValue) {
+                middleCount++;
+                break;
+			}
+		}
 
-        while (i < cards.Length) {
-            if (currValue == cards[i].Value) {
+        currValue++;
+
+		int i = 0;
+
+        while (i < ordered.Length) {
+            if (currValue == ordered[i].Value) {
                 i++;
             } else {
                 bool found = false;
@@ -93,6 +103,7 @@ public static class CardLogic {
                 foreach (CardData card in middle) {
                     if (card.Value == currValue) {
                         found = true;
+                        break;
                     }
                 }
 
@@ -106,6 +117,13 @@ public static class CardLogic {
             currValue = currValue % 13 + 1;
         }
 
-        return middleCount >= OrderedMinSize;
+		foreach (CardData card in middle) {
+			if (card.Value == currValue) {
+				middleCount++;
+				break;
+			}
+		}
+
+        return middleCount + cards.Length >= OrderedMinSize;
     }
 }
