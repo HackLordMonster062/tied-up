@@ -23,7 +23,7 @@ public class CardViewManager : Singleton<CardViewManager> {
 		CardManager.instance.OnSuccessfulMove += UpdateMiddleCards;
 	}
 
-	void UpdateMiddleCards() {
+	void UpdateMiddleCards(HandManager _ = null) {
 		var middleCards = CardManager.instance.MiddleCards;
 
 		float start = -middleCardSpacing * middleCards.Length / 2;

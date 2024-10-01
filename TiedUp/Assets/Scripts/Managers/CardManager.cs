@@ -4,7 +4,7 @@ using UnityEngine;
 public class CardManager : Singleton<CardManager> {
     public static readonly int DeckSize = 54;
 
-    public event Action OnSuccessfulMove;
+    public event Action<HandManager> OnSuccessfulMove;
 
     public CardData[] MiddleCards { get; private set; }
 
@@ -18,14 +18,16 @@ public class CardManager : Singleton<CardManager> {
         MiddleCards = new CardData[2] { GenerateCard(), GenerateCard() };
     }
 
-    public void MakeMove(CardData[] cards, int middleCardIndex) {
+    public bool MakeMove(CardData[] cards, int middleCardIndex, HandManager hand) {
         bool isLegal = CardLogic.IsLegal(cards, MiddleCards);
 
         if (isLegal) {
             MiddleCards[middleCardIndex] = cards[cards.Length - 1];
 
-            OnSuccessfulMove?.Invoke();
+            OnSuccessfulMove?.Invoke(hand);
         }
+
+        return isLegal;
     }
 
     public CardData GenerateCard() {
