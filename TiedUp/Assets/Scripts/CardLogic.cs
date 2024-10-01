@@ -77,22 +77,31 @@ public static class CardLogic {
             .Where(card => card.Suit != Suit.Joker)
             .OrderBy(card => card.Value).ToArray();
 
+        var orderedMiddle = middle.OrderBy(card => card.Value);
+
         int jokers = cards.Count(card => card.Suit == Suit.Joker);
 
-        int currValue = (ordered[0].Value + 11) % 13 + 1;  // One number down and around
+        int currValue = CardModulu(ordered[0].Value - middle.Length);
 
         int middleCount = 0;
 
-		foreach (CardData card in middle) {
-			if (card.Value == currValue) {
-                middleCount++;
-                break;
-			}
-		}
+        for (int j = 0; j < middle.Length; j++) {
+            foreach (CardData card in orderedMiddle) {
+                if (card.Value == currValue) {
+                    middleCount++;
+                    break;
+                }
+            }
 
-        currValue++;
+            currValue = CardModulu(currValue + 1);
+        }
+
+        currValue = ordered[0].Value;
 
 		int i = 0;
+
+        bool skipped = false;
+        bool restarted = false;
 
         while (i < ordered.Length) {
             if (currValue == ordered[i].Value) {
@@ -100,7 +109,7 @@ public static class CardLogic {
             } else {
                 bool found = false;
 
-                foreach (CardData card in middle) {
+                foreach (CardData card in orderedMiddle) {
                     if (card.Value == currValue) {
                         found = true;
                         break;
@@ -109,21 +118,35 @@ public static class CardLogic {
 
                 middleCount++;
 
-                if (!found && jokers-- <= 0) {
-                    return false;
+                if (!found) {
+                    if (!skipped)
+                        skipped = true;
+                    else if (restarted && jokers-- <= 0) {
+                        return false;
+                    }
                 }
             }
 
-            currValue = currValue % 13 + 1;
+            if (skipped && !restarted) restarted = true;
+
+			currValue = CardModulu(currValue + 1);
         }
 
-		foreach (CardData card in middle) {
-			if (card.Value == currValue) {
-				middleCount++;
-				break;
+		for (int j = 0; j < middle.Length; j++) {
+			foreach (CardData card in orderedMiddle) {
+				if (card.Value == currValue) {
+					middleCount++;
+					break;
+				}
 			}
+
+			currValue = CardModulu(currValue + 1);
 		}
 
-        return middleCount + cards.Length >= OrderedMinSize;
+		return middleCount + cards.Length >= OrderedMinSize;
+    }
+
+    static int CardModulu(int value) {
+        return (value + 12) % 13 + 1;
     }
 }

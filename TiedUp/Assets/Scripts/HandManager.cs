@@ -19,7 +19,7 @@ public class HandManager : MonoBehaviour {
 	}
 
 	void Start() {
-        DrawCards(4);
+		DrawCards(4);
         AdjustCardObjects();
     }
 
